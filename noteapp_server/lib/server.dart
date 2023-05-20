@@ -1,6 +1,9 @@
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import 'package:serverpod/serverpod.dart';
 
 import 'package:noteapp_server/src/web/routes/root.dart';
+import 'package:serverpod_auth_server/module.dart' as auth;
 
 import 'src/generated/protocol.dart';
 import 'src/generated/endpoints.dart';
@@ -28,6 +31,56 @@ void run(List<String> args) async {
     RouteStaticDirectory(serverDirectory: 'static', basePath: '/'),
     '/*',
   );
+
+  ///
+
+  Future<bool> sendVerificationEmail({
+    required String emailAddress,
+    required String verificationCode,
+  }) async {
+    bool? isSent;
+
+    final username = "your@domain.com";
+    final password = "password word";
+    final smtpServer = SmtpServer(
+      "smtp-relay.sendinblue.com",
+      port: 111,
+      username: username,
+      password: password,
+    );
+
+    final message = Message()
+      ..recipients.add(emailAddress)
+      ..from = Address(username, "Comapany\'s name")
+      ..subject = "Verification code"
+      ..text = "Hi, \n This is your verification code: ${verificationCode}.";
+    try {
+      final sendReport = await send(message, smtpServer);
+      isSent = true;
+    } on MailerException catch (e) {
+      isSent = false;
+    }
+    return isSent;
+  }
+
+  auth.AuthConfig.set(
+    auth.AuthConfig(
+      sendValidationEmail: (session, email, validationCode) async {
+        final isSent = await sendVerificationEmail(
+            emailAddress: email, verificationCode: validationCode);
+        return isSent;
+      },
+      sendPasswordResetEmail: (session, userInfo, validationCode) async {
+        // Add password reset email logic.
+
+        ///  The function require that we return a bool
+        /// if the email was sent or not. return `true` for demo
+        return Future.value(true);
+      },
+    ),
+  );
+
+  ///
 
   // Start the server.
   await pod.start();

@@ -10,6 +10,7 @@ library protocol; // ignore_for_file: no_leading_underscores_for_library_prefixe
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'note.dart' as _i2;
 import 'package:noteapp_client/src/protocol/note.dart' as _i3;
+import 'package:serverpod_auth_client/module.dart' as _i4;
 export 'note.dart';
 export 'client.dart';
 
@@ -41,11 +42,19 @@ class Protocol extends _i1.SerializationManager {
       return (data as List).map((e) => deserialize<_i3.Note>(e)).toList()
           as dynamic;
     }
+    try {
+      return _i4.Protocol().deserialize<T>(data, t);
+    } catch (_) {}
     return super.deserialize<T>(data, t);
   }
 
   @override
   String? getClassNameForObject(Object data) {
+    String? className;
+    className = _i4.Protocol().getClassNameForObject(data);
+    if (className != null) {
+      return 'serverpod_auth.$className';
+    }
     if (data is _i2.Note) {
       return 'Note';
     }
@@ -54,6 +63,10 @@ class Protocol extends _i1.SerializationManager {
 
   @override
   dynamic deserializeByClassName(Map<String, dynamic> data) {
+    if (data['className'].startsWith('serverpod_auth.')) {
+      data['className'] = data['className'].substring(15);
+      return _i4.Protocol().deserializeByClassName(data);
+    }
     if (data['className'] == 'Note') {
       return deserialize<_i2.Note>(data['data']);
     }

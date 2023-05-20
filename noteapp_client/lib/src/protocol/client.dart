@@ -9,8 +9,9 @@
 import 'package:serverpod_client/serverpod_client.dart' as _i1;
 import 'dart:async' as _i2;
 import 'package:noteapp_client/src/protocol/note.dart' as _i3;
-import 'dart:io' as _i4;
-import 'protocol.dart' as _i5;
+import 'package:serverpod_auth_client/module.dart' as _i4;
+import 'dart:io' as _i5;
+import 'protocol.dart' as _i6;
 
 class _EndpointNote extends _i1.EndpointRef {
   _EndpointNote(_i1.EndpointCaller caller) : super(caller);
@@ -48,24 +49,36 @@ class _EndpointNote extends _i1.EndpointRef {
       );
 }
 
+class _Modules {
+  _Modules(Client client) {
+    auth = _i4.Caller(client);
+  }
+
+  late final _i4.Caller auth;
+}
+
 class Client extends _i1.ServerpodClient {
   Client(
     String host, {
-    _i4.SecurityContext? context,
+    _i5.SecurityContext? context,
     _i1.AuthenticationKeyManager? authenticationKeyManager,
   }) : super(
           host,
-          _i5.Protocol(),
+          _i6.Protocol(),
           context: context,
           authenticationKeyManager: authenticationKeyManager,
         ) {
     note = _EndpointNote(this);
+    modules = _Modules(this);
   }
 
   late final _EndpointNote note;
 
+  late final _Modules modules;
+
   @override
   Map<String, _i1.EndpointRef> get endpointRefLookup => {'note': note};
   @override
-  Map<String, _i1.ModuleEndpointCaller> get moduleLookup => {};
+  Map<String, _i1.ModuleEndpointCaller> get moduleLookup =>
+      {'auth': modules.auth};
 }
