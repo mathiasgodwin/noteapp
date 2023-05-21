@@ -5,4 +5,5 @@ environment:
   sdk: '>=2.17.0 <3.0.0'
 
 dependencies:
+  serverpod_auth_client: ^1.1.0
   serverpod_client: ^1.1.0

@@ -32,32 +32,34 @@ void run(List<String> args) async {
     '/*',
   );
 
-  ///
-
   Future<bool> sendVerificationEmail({
     required String emailAddress,
     required String verificationCode,
   }) async {
     bool? isSent;
 
-    final username = "your@domain.com";
-    final password = "password word";
+    // SMTP server details
+    final smtp = "smtp-relay.sendinblue.com";
+    final username = String.fromEnvironment('email');
+    final password = String.fromEnvironment('password');
+    final port = 587;
+
     final smtpServer = SmtpServer(
-      "smtp-relay.sendinblue.com",
-      port: 111,
+      smtp,
+      port: port,
       username: username,
       password: password,
     );
 
     final message = Message()
       ..recipients.add(emailAddress)
-      ..from = Address(username, "Comapany\'s name")
+      ..from = Address(username, "Company\'s name")
       ..subject = "Verification code"
-      ..text = "Hi, \n This is your verification code: ${verificationCode}.";
+      ..text = "Hi, \n This is your verification code: $verificationCode.";
     try {
-      final sendReport = await send(message, smtpServer);
+      await send(message, smtpServer);
       isSent = true;
-    } on MailerException catch (e) {
+    } on MailerException {
       isSent = false;
     }
     return isSent;
@@ -73,14 +75,12 @@ void run(List<String> args) async {
       sendPasswordResetEmail: (session, userInfo, validationCode) async {
         // Add password reset email logic.
 
-        ///  The function require that we return a bool
-        /// if the email was sent or not. return `true` for demo
+        ///  The function requires a boolean value is returned
+        /// if the email was sent or not. returning `true` for demonstration
         return Future.value(true);
       },
     ),
   );
-
-  ///
 
   // Start the server.
   await pod.start();
