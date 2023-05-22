@@ -1,5 +1,3 @@
-import 'package:mailer/mailer.dart';
-import 'package:mailer/smtp_server.dart';
 import 'package:serverpod/serverpod.dart';
 
 import 'package:noteapp_server/src/web/routes/root.dart';
@@ -32,45 +30,12 @@ void run(List<String> args) async {
     '/*',
   );
 
-  Future<bool> sendVerificationEmail({
-    required String emailAddress,
-    required String verificationCode,
-  }) async {
-    bool? isSent;
-
-    // SMTP server details
-    final smtp = "smtp-relay.sendinblue.com";
-    final username = String.fromEnvironment('email');
-    final password = String.fromEnvironment('password');
-    final port = 587;
-
-    final smtpServer = SmtpServer(
-      smtp,
-      port: port,
-      username: username,
-      password: password,
-    );
-
-    final message = Message()
-      ..recipients.add(emailAddress)
-      ..from = Address(username, "Company\'s name")
-      ..subject = "Verification code"
-      ..text = "Hi, \n This is your verification code: $verificationCode.";
-    try {
-      await send(message, smtpServer);
-      isSent = true;
-    } on MailerException {
-      isSent = false;
-    }
-    return isSent;
-  }
 
   auth.AuthConfig.set(
     auth.AuthConfig(
       sendValidationEmail: (session, email, validationCode) async {
-        final isSent = await sendVerificationEmail(
-            emailAddress: email, verificationCode: validationCode);
-        return isSent;
+        print(validationCode);
+        return Future.value(true);
       },
       sendPasswordResetEmail: (session, userInfo, validationCode) async {
         // Add password reset email logic.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:noteapp_client/noteapp_client.dart';
+import 'package:noteapp_flutter/account_page.dart';
 import 'package:noteapp_flutter/serverpod_client.dart';
 
 /// TODO: Finish the docs
@@ -33,9 +34,13 @@ class _NotePageState extends State<NotePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Take Note'),
-      ),
+      appBar: AppBar(title: const Text('Take Note'), actions: [
+        IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.of(context).push(AccountPage.go());
+            })
+      ]),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
