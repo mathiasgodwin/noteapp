@@ -2,6 +2,9 @@ import 'package:noteapp_server/src/generated/protocol.dart';
 import 'package:serverpod/serverpod.dart';
 
 class NoteEndpoint extends Endpoint {
+  @override
+  bool get requireLogin => true;
+
   /// Create new note on the database
   Future<bool> createNote(Session session, Note note) async {
     await Note.insert(session, note);
